@@ -36,7 +36,7 @@ while True:
         print("Temp={0:0.1f}ºC, Temp={1:0.1f}ºF, Humidity={2:0.1f}%".format(temperature_c, temperature_f, humidity))
         
         # Check temperature and blink LED if necessary
-        if temperature_f > 50:
+        if humidity > 80:
             blink_led(17)
 
     except RuntimeError as error:
