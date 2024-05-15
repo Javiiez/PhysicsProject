@@ -1,37 +1,26 @@
-#include <dht.h>
+import time
+import board
+import adafruit_dht
 
-dht DHT;
 
-#define DHT11_PIN 7
-#define TEMP_THRESHOLD_HIGH 25 //  value to set the temperature threshold for both LEDs to light up
-#define TEMP_THRESHOLD_LOW 20  // value to set the temperature threshold for only one LED to light up
+# Uncomment for DHT11
+sensor = adafruit_dht.DHT11(board.D4)
 
-const int ledPin1 = 10; // First LED connected to pin 10
-const int ledPin2 = 11; // Second LED connected to pin 11
+while True:
+    try:
+        # Print the values to the serial port
+        temperature_c = sensor.temperature
+        temperature_f = temperature_c * (9 / 5) + 32
+        humidity = sensor.humidity
+        print("Temp={0:0.1f}ºC, Temp={1:0.1f}ºF, Humidity={2:0.1f}%".format(temperature_c, temperature_f, humidity))
 
-void setup() {
-  Serial.begin(9600);
-  pinMode(ledPin1, OUTPUT); // Initialize the LED pins as outputs
-  pinMode(ledPin2, OUTPUT);
-}
+    except RuntimeError as error:
+        # Errors happen fairly often, DHT's are hard to read, just keep going
+        print(error.args[0])
+        time.sleep(2.0)
+        continue
+    except Exception as error:
+        sensor.exit()
+        raise error
 
-void loop() {
-  int chk = DHT.read11(DHT11_PIN);
-  Serial.print("Temperature = ");
-  Serial.println(DHT.temperature);
-  Serial.print("Humidity = ");
-  Serial.println(DHT.humidity);
-
-  if (DHT.temperature > TEMP_THRESHOLD_HIGH) {
-    digitalWrite(ledPin1, HIGH); // Turn on both LEDs
-    digitalWrite(ledPin2, HIGH);
-  } else if (DHT.temperature > TEMP_THRESHOLD_LOW) {
-    digitalWrite(ledPin1, HIGH); // Turn on only one LED
-    digitalWrite(ledPin2, LOW);
-  } else {
-    digitalWrite(ledPin1, LOW); // Turn off both LEDs
-    digitalWrite(ledPin2, LOW);
-  }
-  
-  delay(1000);
-}
+    time.sleep(3.0)
